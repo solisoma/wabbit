@@ -19,3 +19,50 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.remove-scrollbar::-webkit-scrollbar {
+  display: none;
+  /* Hide the scrollbar */
+}
+
+/* For Chrome and Safari */
+.remove-scrollbar::-webkit-scrollbar-thumb {
+  display: none;
+  /* Hide the thumb */
+}
+
+/* For Firefox */
+.remove-scrollbar {
+  scrollbar-width: none;
+}
+
+/* For Firefox */
+.remove-scrollbar::-webkit-scrollbar-thumb {
+  display: none;
+  /* Hide the thumb */
+}
+
+
+.live-trade-table th:nth-child(n + 2) {
+  position: sticky;
+  top: 0;
+  background-color: inherit;
+  z-index: 6;
+}
+
+.live-trade-table th:nth-child(1) {
+  position: sticky;
+  left: 0;
+  top: 0;
+  background-color: inherit;
+  z-index: 8;
+}
+
+@media (max-width: 850px) {
+  .live-trade-table td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    background-color: inherit;
+    z-index: 6;
+  }
+}
