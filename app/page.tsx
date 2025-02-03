@@ -6,7 +6,8 @@ import InfoBox from "@/components/InfoBox";
 import Nav from "@/components/nav/Nav";
 import Table from "@/components/Table";
 import { useEffect, useState } from "react";
-import { Bounce, ToastContainer } from "react-toastify";
+import { FaRegCopy } from "react-icons/fa6";
+import { Bounce, toast, ToastContainer } from "react-toastify";
 
 export default function Home() {
   const [info, setInfo] = useState<Info>();
@@ -44,7 +45,7 @@ export default function Home() {
               and PNL reflect this delay.
             </p>
           </div>
-          <div className="flex flex-col gap-4 md:flex-row md:flex-wrap">
+          <div className="flex flex-col gap-4 bg-[#0F0F0F] rounded-lg px-3 py-8 md:flex-row md:flex-wrap">
             <div className="w-full lg:w-[48%]">
               <InfoBox
                 header="Current price"
@@ -85,6 +86,21 @@ export default function Home() {
                     : ""
                 }`}
               />
+            </div>
+            <div className="flex gap-4 items-center font-semibold">
+              Support the dev:{" "}
+              <button
+                onClick={() => {
+                  window.navigator.clipboard.writeText(
+                    process.env.NEXT_PUBLIC_DEV_ADDY!
+                  );
+                  toast.success("Dev address copied");
+                }}
+                className="flex gap-2 items-center cursor-pointer"
+              >
+                <p>wabbit.avax</p>
+                <FaRegCopy />
+              </button>
             </div>
           </div>
           <div>

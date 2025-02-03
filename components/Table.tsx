@@ -3,14 +3,17 @@ import { Holders } from "./data.type";
 import { get_token_holders } from "@/api/default";
 import { FaRegCopy } from "react-icons/fa6";
 import { toast } from "react-toastify";
+import { RiArrowDownSFill, RiArrowUpSFill } from "react-icons/ri";
+import { CgSearchLoading } from "react-icons/cg";
 
 export default function Table() {
   const [holders, setHolders] = useState<Holders[]>();
-  const [filteredHolders, setFilteredHolders] = useState<Holders[]>();
-  const [filterAscState, setFilterAscState] = useState({
+  const [sortedHolders, setSortedHolders] = useState<Holders[]>();
+  const [sortAscState, setSortAscState] = useState({
     bought: true,
     sold: true,
     balance: true,
+    badge: false,
   });
   const containerRef = useRef(null);
 
@@ -30,22 +33,45 @@ export default function Table() {
     }
   };
 
-  const filterByBalanceChange = (paramHolder: Holders[]) => {
-    const residue = paramHolder?.sort((a, b) => {
-      const aBalanceDiff = calc_balance_change(a);
-      const bBalanceDiff = calc_balance_change(b);
+  const filterHolders = ({ target: { value } }: { target: any }) => {
+    const regex = new RegExp(value, "ig");
+    const residue = holders?.filter(
+      (holder) =>
+        holder.address.match(regex) ||
+        holder.x_handle.match(regex) ||
+        holder.classification.match(regex)
+    );
 
-      if (aBalanceDiff < bBalanceDiff) return 1;
-      if (aBalanceDiff > bBalanceDiff) return -1;
-      return 0;
-    });
-
-    setFilteredHolders(residue);
+    setSortedHolders(residue);
   };
 
-  const filterByBought = () => {
-    const residue = holders?.sort((a, b) => {
-      if (filterAscState.bought) {
+  const sortByBalanceChange = (paramHolder?: Holders[]) => {
+    const m_holders = paramHolder || sortedHolders;
+    const residue = m_holders?.sort((a, b) => {
+      if (sortAscState.badge) {
+        const aBalanceDiff = calc_balance_change(a);
+        const bBalanceDiff = calc_balance_change(b);
+
+        if (aBalanceDiff < bBalanceDiff || isNaN(aBalanceDiff)) return -1;
+        if (aBalanceDiff > bBalanceDiff || isNaN(bBalanceDiff)) return 1;
+        return 0;
+      } else {
+        const aBalanceDiff = calc_balance_change(a);
+        const bBalanceDiff = calc_balance_change(b);
+
+        if (aBalanceDiff < bBalanceDiff || isNaN(aBalanceDiff)) return 1;
+        if (aBalanceDiff > bBalanceDiff || isNaN(bBalanceDiff)) return -1;
+        return 0;
+      }
+    });
+
+    setSortAscState((init) => ({ ...init, badge: !init.badge }));
+    setSortedHolders(residue);
+  };
+
+  const sortByBought = () => {
+    const residue = sortedHolders?.sort((a, b) => {
+      if (sortAscState.bought) {
         if (a.total_incoming < b.total_incoming) return 1;
         if (a.total_incoming > b.total_incoming) return -1;
         return 0;
@@ -56,13 +82,13 @@ export default function Table() {
       }
     });
 
-    setFilterAscState((init) => ({ ...init, bought: !init.bought }));
-    setFilteredHolders(residue);
+    setSortAscState((init) => ({ ...init, bought: !init.bought }));
+    setSortedHolders(residue);
   };
 
-  const filterBySold = () => {
-    const residue = holders?.sort((a, b) => {
-      if (filterAscState.sold) {
+  const sortBySold = () => {
+    const residue = sortedHolders?.sort((a, b) => {
+      if (sortAscState.sold) {
         if (a.total_outgoing < b.total_outgoing) return 1;
         if (a.total_outgoing > b.total_outgoing) return -1;
         return 0;
@@ -73,13 +99,13 @@ export default function Table() {
       }
     });
 
-    setFilterAscState((init) => ({ ...init, sold: !init.sold }));
-    setFilteredHolders(residue);
+    setSortAscState((init) => ({ ...init, sold: !init.sold }));
+    setSortedHolders(residue);
   };
 
-  const filterByBalance = () => {
-    const residue = holders?.sort((a, b) => {
-      if (filterAscState.balance) {
+  const sortByBalance = () => {
+    const residue = sortedHolders?.sort((a, b) => {
+      if (sortAscState.balance) {
         if (a.balance < b.balance) return 1;
         if (a.balance > b.balance) return -1;
         return 0;
@@ -90,15 +116,14 @@ export default function Table() {
       }
     });
 
-    setFilterAscState((init) => ({ ...init, balance: !init.balance }));
-    setFilteredHolders(residue);
+    setSortAscState((init) => ({ ...init, balance: !init.balance }));
+    setSortedHolders(residue);
   };
 
   const getHolder = async () => {
     const fetchHolders = await get_token_holders();
     setHolders(fetchHolders);
-    filterByBalanceChange(fetchHolders);
-    return fetchHolders;
+    sortByBalanceChange(fetchHolders);
   };
 
   const copyText = (addy: string) => {
@@ -109,10 +134,9 @@ export default function Table() {
   const handleScroll = () => {
     let scrollPosition = window.scrollY;
     const isBigScreen = window.innerWidth > 1000;
-    console.log(isBigScreen);
     let triggerHeight = isBigScreen
-      ? window.innerHeight * 0.3
-      : window.innerHeight * 0.6;
+      ? window.innerHeight * 0.2
+      : window.innerHeight * 0.5;
 
     if (containerRef.current) {
       if (scrollPosition > triggerHeight) {
@@ -123,111 +147,184 @@ export default function Table() {
     }
   };
 
+  const getBalanceChange = (val: Holders) => {
+    const value = parseFloat(calc_balance_change(val).toPrecision(4)).toFixed(
+      2
+    );
+    return <p>{isNaN(Number(value)) ? "N/A" : `${value}%`}</p>;
+  };
+
   useEffect(() => {
     getHolder();
 
-    // Attach event listener
     window.addEventListener("scroll", handleScroll);
 
-    // Cleanup function to remove event listener on unmount
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full overflow-x-scroll remove-scrollbar live-trade-table"
-    >
-      <table className="min-w-full border-collapse">
-        <thead className="rounded-lg">
-          <tr className="text-[1rem] bg-[#292B37]">
-            <th className="text-left px-6 py-2 md:px-[2vw] md:py-[.7vw]">
-              S/N
-            </th>
-            <th className="text-left pr-6 md:pr-[2vw]">User</th>
-            <th className="text-left pr-6 md:pr-[2vw]">Address</th>
-            <th className="text-left pr-6 md:pr-[2vw]">Badge</th>
-            <th className="text-left pr-6 md:pr-[2vw]">Total Bought</th>
-            <th className="text-left pr-6 md:pr-[2vw]">Total Sold</th>
-            <th className="text-left pr-6 md:pr-[2vw]">Current Position</th>
-            <th className="text-left pr-6 md:pr-[2vw]">Balance Change</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredHolders &&
-            filteredHolders.map((val, key) => (
-              <tr
-                key={key}
-                className={`${
-                  key % 2 != 0 ? "bg-[#20232A]" : "bg-[--background]"
-                }  md:text-[1.3vw]`}
-              >
-                <td className="px-6 py-2 md:px-[2vw] md:py-[.7vw] text-xm">
-                  <p>{key}</p>
-                </td>
-                <td className="pr-6 md:pr-[2vw]">
-                  <a
-                    target="_blank"
-                    href={`https://x.com/${val.x_handle}`}
-                    rel="noreferrer noopener"
-                    className="flex gap-4 items-center"
-                  >
-                    <div className="rounded-full w-[2rem] h-[2rem] flex items-center justify-center border-2 border-[#D7DDE2] md:w-[2.5rem] md:h-[2.5rem]">
-                      <img
-                        src={`${process.env.NEXT_PUBLIC_GET_DP_API}${val.x_handle}`}
-                        className="h-full w-full rounded-full"
-                      />
-                    </div>
-                    <p className="text-[1rem] font-semibold">{val.x_handle}</p>
-                  </a>
-                </td>
-                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
-                  <div className="flex items-center gap-2">
-                    <p>{`${val.address.slice(0, 6)}....${val.address.slice(
-                      val.address.length - 4
-                    )}`}</p>
-                    <FaRegCopy
-                      size={18}
-                      onClick={() => copyText(val.address)}
-                      color="gray"
-                      className="cursor-pointer"
+    <div>
+      <div className="flex gap-2 items-center w-full border mb-[1.5rem] rounded-lg px-2">
+        <CgSearchLoading size={24} color="gray" />
+        <input
+          type="search"
+          onInput={filterHolders}
+          placeholder="Search by wallet address, username or badge...."
+          className="w-full bg-[inherit] py-2 outline-none"
+        />
+      </div>
+      <div
+        ref={containerRef}
+        className="w-full overflow-x-scroll remove-scrollbar live-trade-table"
+      >
+        <table className="min-w-full border-collapse">
+          <thead className="rounded-lg">
+            <tr className="text-[1rem] bg-[#292B37]">
+              <th className="text-left px-6 py-2 md:px-[2vw] md:py-[.7vw]">
+                S/N
+              </th>
+              <th className="text-left pr-6 md:pr-[2vw]">User</th>
+              <th className="text-left pr-6 md:pr-[2vw]">Address</th>
+              <th className="text-left pr-6 md:pr-[2vw]">
+                <button
+                  onClick={() => sortByBalanceChange()}
+                  className="flex items-center gap-2"
+                >
+                  <p>Badge</p>
+                  <div className="flex flex-col gap-0">
+                    <RiArrowUpSFill
+                      color={sortAscState.badge ? "gray" : "white"}
+                    />
+                    <RiArrowDownSFill
+                      color={sortAscState.badge ? "white" : "gray"}
                     />
                   </div>
-                </td>
-                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
-                  <p className={get_class_color(val.classification)}>
-                    {val.classification}
-                  </p>
-                </td>
-                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
-                  <p>{new Intl.NumberFormat().format(val.total_incoming)}</p>
-                </td>
-                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
-                  <p>{new Intl.NumberFormat().format(val.total_outgoing)}</p>
-                </td>
-                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
-                  <p>{new Intl.NumberFormat().format(val.balance)}</p>
-                </td>
-                <td
-                  className={`${
-                    calc_balance_change(val) < 0
-                      ? "text-[#FC1B1B]"
-                      : "text-[#25D366]"
-                  } text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]`}
+                </button>
+              </th>
+              <th className="text-left pr-6 md:pr-[2vw]">
+                <button
+                  onClick={sortByBought}
+                  className="flex items-center gap-2"
                 >
-                  <p>
-                    {parseFloat(
-                      calc_balance_change(val).toPrecision(4)
-                    ).toFixed(2)}
-                    %
-                  </p>
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+                  <p>Total Bought</p>
+                  <div className="flex flex-col gap-0">
+                    <RiArrowUpSFill
+                      color={sortAscState.bought ? "white" : "gray"}
+                    />
+                    <RiArrowDownSFill
+                      color={sortAscState.bought ? "gray" : "white"}
+                    />
+                  </div>
+                </button>
+              </th>
+              <th className="text-left pr-6 md:pr-[2vw]">
+                <button
+                  onClick={sortBySold}
+                  className="flex items-center gap-2"
+                >
+                  <p>Total Sold</p>
+                  <div className="flex flex-col gap-0">
+                    <RiArrowUpSFill
+                      color={sortAscState.sold ? "white" : "gray"}
+                    />
+                    <RiArrowDownSFill
+                      color={sortAscState.sold ? "gray" : "white"}
+                    />
+                  </div>
+                </button>
+              </th>
+              <th className="text-left pr-6 md:pr-[2vw]">
+                <button
+                  onClick={sortByBalance}
+                  className="flex items-center gap-2"
+                >
+                  <p> Current Position</p>
+                  <div className="flex flex-col gap-0">
+                    <RiArrowUpSFill
+                      color={sortAscState.balance ? "white" : "gray"}
+                    />
+                    <RiArrowDownSFill
+                      color={sortAscState.balance ? "gray" : "white"}
+                    />
+                  </div>
+                </button>
+              </th>
+              <th className="text-left pr-6 md:pr-[2vw]">Balance Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedHolders &&
+              sortedHolders.map((val, key) => (
+                <tr
+                  key={key}
+                  className={`${
+                    key % 2 != 0 ? "bg-[#20232A]" : "bg-[--background]"
+                  }  md:text-[1.3vw]`}
+                >
+                  <td className="px-6 py-2 md:px-[2vw] md:py-[.7vw] text-xm">
+                    <p>{key}</p>
+                  </td>
+                  <td className="pr-6 md:pr-[2vw]">
+                    <a
+                      target="_blank"
+                      href={`https://x.com/${val.x_handle}`}
+                      rel="noreferrer noopener"
+                      className="flex gap-4 items-center"
+                    >
+                      <div className="rounded-full w-[2rem] h-[2rem] flex items-center justify-center border-2 border-[#D7DDE2] md:w-[2.5rem] md:h-[2.5rem]">
+                        <img
+                          src={`${process.env.NEXT_PUBLIC_GET_DP_API}${val.x_handle}`}
+                          className="h-full w-full rounded-full"
+                        />
+                      </div>
+                      <p className="text-[1rem] font-semibold">
+                        {val.x_handle}
+                      </p>
+                    </a>
+                  </td>
+                  <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
+                    <div className="flex items-center gap-2">
+                      <p>{`${val.address.slice(0, 6)}....${val.address.slice(
+                        val.address.length - 4
+                      )}`}</p>
+                      <FaRegCopy
+                        size={18}
+                        onClick={() => copyText(val.address)}
+                        color="gray"
+                        className="cursor-pointer"
+                      />
+                    </div>
+                  </td>
+                  <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
+                    <p className={get_class_color(val.classification)}>
+                      {val.classification}
+                    </p>
+                  </td>
+                  <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
+                    <p>{new Intl.NumberFormat().format(val.total_incoming)}</p>
+                  </td>
+                  <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
+                    <p>{new Intl.NumberFormat().format(val.total_outgoing)}</p>
+                  </td>
+                  <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
+                    <p>{new Intl.NumberFormat().format(val.balance)}</p>
+                  </td>
+                  <td
+                    className={`${
+                      calc_balance_change(val) < 0
+                        ? "text-[#FC1B1B]"
+                        : "text-[#25D366]"
+                    } text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]`}
+                  >
+                    {getBalanceChange(val)}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
