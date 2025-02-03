@@ -144,8 +144,9 @@ export default function Table() {
         <thead className="rounded-lg">
           <tr className="text-[1rem] bg-[#292B37]">
             <th className="text-left px-6 py-2 md:px-[2vw] md:py-[.7vw]">
-              User
+              S/N
             </th>
+            <th className="text-left pr-6 md:pr-[2vw]">User</th>
             <th className="text-left pr-6 md:pr-[2vw]">Address</th>
             <th className="text-left pr-6 md:pr-[2vw]">Badge</th>
             <th className="text-left pr-6 md:pr-[2vw]">Total Bought</th>
@@ -163,7 +164,10 @@ export default function Table() {
                   key % 2 != 0 ? "bg-[#20232A]" : "bg-[--background]"
                 }  md:text-[1.3vw]`}
               >
-                <td className="px-6 py-2 md:px-[2vw] md:py-[.7vw]">
+                <td className="px-6 py-2 md:px-[2vw] md:py-[.7vw] text-xm">
+                  <p>{key}</p>
+                </td>
+                <td className="pr-6 md:pr-[2vw]">
                   <a
                     target="_blank"
                     href={`https://x.com/${val.x_handle}`}
@@ -179,7 +183,7 @@ export default function Table() {
                     <p className="text-[1rem] font-semibold">{val.x_handle}</p>
                   </a>
                 </td>
-                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw] ">
+                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
                   <div className="flex items-center gap-2">
                     <p>{`${val.address.slice(0, 6)}....${val.address.slice(
                       val.address.length - 4
@@ -192,18 +196,18 @@ export default function Table() {
                     />
                   </div>
                 </td>
-                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw] ">
+                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
                   <p className={get_class_color(val.classification)}>
                     {val.classification}
                   </p>
                 </td>
-                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw] ">
+                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
                   <p>{new Intl.NumberFormat().format(val.total_incoming)}</p>
                 </td>
-                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw] ">
+                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
                   <p>{new Intl.NumberFormat().format(val.total_outgoing)}</p>
                 </td>
-                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw] ">
+                <td className="text-left text-[1rem] font-semibold pr-6 md:pr-[2vw]">
                   <p>{new Intl.NumberFormat().format(val.balance)}</p>
                 </td>
                 <td
