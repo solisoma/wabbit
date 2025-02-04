@@ -31,7 +31,7 @@ export default function Paginator({
       />
       <div
         ref={scrollRef}
-        className="flex gap-1 overflow-x-auto md:gap-[.7vw] w-[10rem] remove-scrollbar scroll-smooth snap-x snap-mandatory md:w-[15rem]"
+        className="flex gap-1 overflow-x-auto md:gap-[.7vw] w-[6rem] remove-scrollbar scroll-smooth snap-x snap-mandatory md:w-[15rem]"
       >
         {phases.map((i, key) => (
           <p

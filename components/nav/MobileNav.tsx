@@ -21,7 +21,7 @@ export default function MobileNav({
         showDropDown ? "translate-x-0" : "-translate-x-full"
       } transition-transform duration-700 md:hidden`}
     >
-      <div className="flex items-center justify-between px-2 pb-10 bg-[#1F2127] w-[70%] h-[15%]">
+      <div className="flex items-center justify-between px-2 pt-8 pb-10 bg-[#1F2127] w-[70%] h-[15%]">
         <Link href="/">
           <img src="/full-icon.png" className="w-[10rem]" />
         </Link>

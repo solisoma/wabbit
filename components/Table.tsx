@@ -351,7 +351,7 @@ export default function Table() {
         </div>
       )}
       <div className="flex justify-between pt-3 pb-[2rem] items-center">
-        <p>
+        <p className="text-xs md:text-[16px]">
           Showing {page * 100 - 99} - {Math.min(page * 100, entries)} of{" "}
           {entries} entries
         </p>
