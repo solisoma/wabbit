@@ -27,14 +27,26 @@ export default function Nav({ activeLink }: { activeLink: string }) {
               >
                 Home
               </Link>
-              <Link
-                href="/gallery"
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://x.com/WABBIT_MEME?t=m_8K5xjW41nkJ8pp5U77Yw&s=09"
                 className={`font-semibold text-base ${
                   activeLink === "Gallery" ? "text-[#034AA6]" : "text-[#646464]"
                 } hover:underline md:text-[1vw]`}
               >
-                Gallery
-              </Link>
+                Twitter
+              </a>
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://t.me/WABBIT_MEME_777"
+                className={`font-semibold text-base ${
+                  activeLink === "Gallery" ? "text-[#034AA6]" : "text-[#646464]"
+                } hover:underline md:text-[1vw]`}
+              >
+                Telegram
+              </a>
             </div>
             <button
               onClick={() => setShowDropDown(true)}

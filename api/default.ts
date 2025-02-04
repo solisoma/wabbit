@@ -23,13 +23,24 @@ export async function get_token_info(): Promise<Info> {
   return info;
 }
 
-export async function get_token_holders(): Promise<Holders[]> {
-  const URL = process.env.NEXT_PUBLIC_WABBIT_API!;
+export async function get_token_holders(page: number): Promise<{
+  holders: Holders[];
+  entries: number;
+}> {
+  const data_length = page * 100;
+  const URL = `${process.env.NEXT_PUBLIC_WABBIT_API!}?start=${
+    data_length - 100
+  }&end=${data_length}`;
 
   const req = await fetch(URL);
 
   if (req.status !== 200) throw new Error("Couldn't fetch holders");
 
-  const data: Holders[] = (await req.json()).holders;
+  const response = await req.json();
+
+  const data: { holders: Holders[]; entries: number } = {
+    holders: response.holders,
+    entries: response.total_entries,
+  };
   return data;
 }

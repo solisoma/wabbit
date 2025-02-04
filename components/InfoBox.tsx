@@ -15,7 +15,7 @@ export default function InfoBox({
   imgSrc?: string;
 }) {
   return (
-    <div className="flex justify-between items-center p-3 rounded-lg shadow-md shadow-gray-200 transition-transform duration-500 hover:translate-y-[-8px] cursor-pointer bg-[--background]">
+    <div className="flex justify-between items-center p-3 rounded-lg shadow-md shadow-gray-200 transition-transform duration-500 cursor-pointer bg-[--background] md:hover:translate-y-[-8px]">
       <div>
         <h2 className="text-xl font-semibold">{header}</h2>
         <div
