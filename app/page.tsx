@@ -57,18 +57,6 @@ export default function Home() {
             </div>
             <div className="w-full lg:w-[48%]">
               <InfoBox
-                header="Max allocation worth"
-                desc={`$${
-                  info?.currentPrice
-                    ? new Intl.NumberFormat().format(
-                        Number((777777 * Number(info?.currentPrice)).toFixed(2))
-                      )
-                    : ""
-                }`}
-              />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <InfoBox
                 header="Market Cap"
                 desc={`$${
                   info?.marketCap
@@ -98,7 +86,7 @@ export default function Home() {
                 }}
                 className="flex gap-2 items-center cursor-pointer"
               >
-                <p>wabbit.avax</p>
+                <p>brainiac_soma</p>
                 <FaRegCopy />
               </button>
             </div>

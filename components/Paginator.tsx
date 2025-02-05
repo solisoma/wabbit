@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 
 export default function Paginator({
@@ -11,6 +11,7 @@ export default function Paginator({
   phases: number[];
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLParagraphElement | null)[]>([]); // Store refs for each item
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -22,6 +23,18 @@ export default function Paginator({
     }
   };
 
+  // Auto-scroll to the active page
+  useEffect(() => {
+    const activeItem = itemRefs.current[phases.indexOf(page)];
+    if (activeItem && scrollRef.current) {
+      activeItem.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }
+  }, [page, phases]);
+
   return (
     <div className="relative flex items-center gap-1 rounded-lg border-[#C2C2C2] border-[.1vw] md:rounded-[.6vw] md:gap-[.7vw]">
       <HiChevronLeft
@@ -31,11 +44,14 @@ export default function Paginator({
       />
       <div
         ref={scrollRef}
-        className="flex gap-1 overflow-x-auto md:gap-[.7vw] w-[6rem] remove-scrollbar scroll-smooth snap-x snap-mandatory md:w-[15rem]"
+        className="flex gap-1 overflow-x-auto md:gap-[.7vw] w-[5rem] remove-scrollbar scroll-smooth snap-x snap-mandatory md:w-[15rem]"
       >
         {phases.map((i, key) => (
           <p
             key={key}
+            ref={(el) => {
+              itemRefs.current[key] = el;
+            }} // Assign ref to each item
             onClick={() => setPage(i)}
             className={`py-1 px-3 text-base rounded-lg md:py-[.5vw] md:px-[1vw] cursor-pointer snap-center ${
               page === i && "bg-[#034AA6] font-bold text-white"

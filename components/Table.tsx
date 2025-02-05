@@ -179,7 +179,7 @@ export default function Table() {
   }, []);
 
   return (
-    <div>
+    <div className="pb-[.8rem]">
       <div className="flex gap-2 items-center w-full border mb-[1.5rem] rounded-lg px-2">
         <CgSearchLoading size={24} color="gray" />
         <input
@@ -344,26 +344,26 @@ export default function Table() {
                 ))}
             </tbody>
           </table>
+          <div className="flex justify-between py-2 items-center px-1 sticky left-0 top-0 z-[8]">
+            <p className="text-xs md:text-[16px]">
+              Showing {page * 100 - 99} - {Math.min(page * 100, entries)} of{" "}
+              {entries} entries
+            </p>
+            <Paginator
+              page={page}
+              setPage={setPage}
+              phases={Array.from(
+                { length: Math.ceil(entries / 100) },
+                (_, i) => i + 1
+              )}
+            />
+          </div>
         </div>
       ) : (
         <div className="w-full h-full flex justify-center items-center">
           <span className="loader"></span>
         </div>
       )}
-      <div className="flex justify-between pt-3 pb-[2rem] items-center">
-        <p className="text-xs md:text-[16px]">
-          Showing {page * 100 - 99} - {Math.min(page * 100, entries)} of{" "}
-          {entries} entries
-        </p>
-        <Paginator
-          page={page}
-          setPage={setPage}
-          phases={Array.from(
-            { length: Math.ceil(entries / 100) },
-            (_, i) => i + 1
-          )}
-        />
-      </div>
     </div>
   );
 }
