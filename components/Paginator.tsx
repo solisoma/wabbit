@@ -23,17 +23,17 @@ export default function Paginator({
     }
   };
 
-  // Auto-scroll to the active page
   useEffect(() => {
-    const activeItem = itemRefs.current[phases.indexOf(page)];
-    if (activeItem && scrollRef.current) {
-      activeItem.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
+    if (scrollRef.current && itemRefs.current[page - 1]) {
+      const selectedItem = itemRefs.current[page - 1];
+      if (selectedItem) {
+        scrollRef.current.scrollTo({
+          left: selectedItem.offsetLeft - scrollRef.current.offsetLeft,
+          behavior: "smooth",
+        });
+      }
     }
-  }, [page, phases]);
+  }, [page]);
 
   return (
     <div className="relative flex items-center gap-1 rounded-lg border-[#C2C2C2] border-[.1vw] md:rounded-[.6vw] md:gap-[.7vw]">

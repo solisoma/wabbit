@@ -150,7 +150,7 @@ export default function Table() {
 
     if (containerRef.current) {
       if (scrollPosition > triggerHeight) {
-        (containerRef.current as any).style.height = "87vh";
+        (containerRef.current as any).style.height = "78vh";
       } else {
         (containerRef.current as any).style.height = "auto";
       }
